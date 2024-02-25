@@ -18,7 +18,7 @@ jobs:
         branchSources {
           git {
             id = 'terraform-deployment'
-            remote = 'https://github.com/Diasastr/homework_23_iac_with_aws/jenkins/terraform-deployment.git'
+            remote = 'https://github.com/Diasastr/homework_23_iac_with_aws/jenkins/Terraform-Deployment.git'
           }
         }
       }
@@ -36,7 +36,7 @@ jobs:
         branchSources {
           git {
             id = 'terraform-deployment'
-            remote = 'https://github.com/Diasastr/homework_23_iac_with_aws/jenkins/application-deployment.git'
+            remote = 'https://github.com/Diasastr/homework_23_iac_with_aws/jenkins/Application-Deployment.git'
           }
         }
       }
