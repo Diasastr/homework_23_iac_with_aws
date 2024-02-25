@@ -1,0 +1,38 @@
+pipeline {
+    agent any
+
+    environment {
+        // Define environment variables if needed
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Initialize Terraform') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+        stage('Apply Terraform') {
+            steps {
+                sh 'terraform apply -auto-approve'
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                // Trigger the next pipeline here
+                build job: 'ansible-configuration', wait: false
+            }
+        }
+        failure {
+            // Handle failure case
+            echo 'Terraform deployment failed.'
+        }
+    }
+}
