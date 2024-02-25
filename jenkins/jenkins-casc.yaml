@@ -1,0 +1,42 @@
+jenkins:
+  systemMessage: "Jenkins configured automatically by JCasC"
+
+securityRealm:
+  local:
+    allowsSignup: false
+    users:
+      - id: "admin"
+        password: "adminPassword"
+
+authorizationStrategy:
+  loggedInUsersCanDoAnything:
+    allowAnonymousRead: false
+
+jobs:
+  - script: >
+      multibranchPipelineJob('Terraform-Deployment') {
+        branchSources {
+          git {
+            id = 'terraform-deployment'
+            remote = 'https://github.com/Diasastr/homework_23_iac_with_aws/jenkins/terraform-deployment.git'
+          }
+        }
+      }
+  - script: >
+      multibranchPipelineJob('Ansible-Configuration') {
+        branchSources {
+          git {
+            id = 'terraform-deployment'
+            remote = 'https://github.com/Diasastr/homework_23_iac_with_aws/jenkins/Ansible-Configuration.git'
+          }
+        }
+      }
+  - script: >
+      multibranchPipelineJob('Application-Deployment ') {
+        branchSources {
+          git {
+            id = 'terraform-deployment'
+            remote = 'https://github.com/Diasastr/homework_23_iac_with_aws/jenkins/application-deployment.git'
+          }
+        }
+      }
