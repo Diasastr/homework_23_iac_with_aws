@@ -24,3 +24,7 @@ variable "public_key_path" {
   type        = string
   default     = "modules/security/deployer-key.pub"
 }
+
+data "external" "current_ip" {
+  program = ["powershell", "-Command", "$ip = (Invoke-RestMethod -Uri https://icanhazip.com).Trim(); Write-Output \"{`\"ip`\":`\"$ip`\"}\""]
+}

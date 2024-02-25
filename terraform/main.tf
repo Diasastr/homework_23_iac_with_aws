@@ -29,5 +29,6 @@ module "jenkins-server" {
   jenkins_security_group_id     = module.security.jenkins_security_group_id // ID групи безпеки для Jenkins.
   environment                   = var.environment
   jenkins_instance_profile_name = module.security.jenkins_instance_profile_name
+  private_key_path              = var.private_key_path
 }
 

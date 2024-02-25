@@ -23,6 +23,8 @@ instance_connect_ssh_cidr = ["13.48.4.200/30"]
 # Ключ дозволяє безпечне підключення до інстансів через SSH.
 public_key_path = "modules/security/deployer-key.pub" # замініть на свій
 
+private_key_path = "C:\\Users\\streb\\ssh_aws\\ssh_aws"
+
 # Тип EC2 інстансу, який буде використовуватися для розгортання серверів.
 instance_type = "t3.small"
 

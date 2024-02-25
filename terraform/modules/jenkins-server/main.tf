@@ -15,6 +15,18 @@ resource "aws_instance" "jenkins_controller" {
     Role        = "jenkins"
   }
 
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = file(var.private_key_path)
+    host        = self.public_ip
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "echo 'Wait for SSH'"
+    ]
+  }
+
   provisioner "file" {
     source      = "./ansible/install.sh"
     destination = "/home/ubuntu/install.sh"
@@ -30,12 +42,6 @@ resource "aws_instance" "jenkins_controller" {
       "chmod +x /home/ubuntu/install.sh",
       "/home/ubuntu/install.sh",
     ]
-  }
-  connection {
-    type        = "ssh"
-    user        = "ubuntu"
-    private_key = file(var.private_key_path)
-    host        = self.public_ip
   }
 }
 

@@ -46,6 +46,14 @@ resource "aws_security_group" "jenkins_sg" {
     description = "Allow SSH for EC2 Instance Connect"
   }
 
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["${data.external.current_ip.result.ip}/32"]
+    description = "Allow SSH for EC2 from my current ip"
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -86,33 +94,25 @@ resource "aws_iam_role" "jenkins_role" {
       })
     }
 
-# attached aws ec2 policy is attached
-
+# aws ec2 policy is attached
 resource "aws_iam_role_policy_attachment" "ec2full_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
   role       = aws_iam_role.jenkins_role.name
 }
 
-
-# attached aws ecr policy is attached
-
+# aws ecr policy is attached
 resource "aws_iam_role_policy_attachment" "ecr_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
   role       = aws_iam_role.jenkins_role.name
-
 }
 
-# attached aws vpc policy is attached
-
+# aws vpc policy is attached
 resource "aws_iam_role_policy_attachment" "vpc_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonVPCFullAccess"
   role       =  aws_iam_role.jenkins_role.name
-
-
   }
 
-# attached aws iam policy is attached
-
+# aws iam policy is attached
 resource "aws_iam_role_policy_attachment" "iam_policy" {
   policy_arn =  "arn:aws:iam::aws:policy/IAMFullAccess"
   role       =  aws_iam_role.jenkins_role.name

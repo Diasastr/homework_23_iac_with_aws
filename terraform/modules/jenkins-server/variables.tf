@@ -47,7 +47,6 @@ data "aws_ami" "ubuntu" {
 
 variable "private_key_path" {
   description = "Path to the SSH private key"
-  default     = "C:\\Users\\streb\\.ssh\\id_rsa"
 }
 
 variable "jenkins_instance_profile_name" {

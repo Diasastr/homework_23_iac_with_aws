@@ -1,5 +1,5 @@
 ---
-- name: Install and Configure Jenkins
+- name: Install and Configure Jenkins and Terraform
   hosts: localhost
   become: yes
   vars:
@@ -11,6 +11,9 @@
       - job-dsl
       - blueocean
       - configuration-as-code
+    terraform_version: "1.0.11"  # Specify the desired Terraform version
+    terraform_install_path: "/usr/local/bin"
+
   tasks:
     - name: Install Java
       apt:
@@ -58,6 +61,29 @@
         owner: jenkins
         group: jenkins
         mode: '0644'
+
+    - name: Install unzip (required for Terraform installation)
+      apt:
+        name: unzip
+        state: present
+
+    - name: Download Terraform
+      get_url:
+        url: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_amd64.zip"
+        dest: "/tmp/terraform.zip"
+        mode: '0644'
+
+    - name: Unzip Terraform
+      ansible.builtin.unarchive:
+        src: "/tmp/terraform.zip"
+        dest: "{{ terraform_install_path }}"
+        remote_src: yes
+        creates: "{{ terraform_install_path }}/terraform"
+
+    - name: Ensure Terraform binary is executable
+      file:
+        path: "{{ terraform_install_path }}/terraform"
+        mode: '0755'
 
     - name: Restart Jenkins for JCasC reload
       systemd:
