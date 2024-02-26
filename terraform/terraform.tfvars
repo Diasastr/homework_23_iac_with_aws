@@ -26,7 +26,7 @@ public_key_path = "modules/security/deployer-key.pub" # замініть на с
 private_key_path = "C:\\Users\\streb\\ssh_aws\\ssh_aws"
 
 # Тип EC2 інстансу, який буде використовуватися для розгортання серверів.
-instance_type = "t3.small"
+instance_type = "t3.medium"
 
 # Назва ключа EC2, який використовується для доступу до інстансів.
 # Ключ повинен бути попередньо створений у AWS.

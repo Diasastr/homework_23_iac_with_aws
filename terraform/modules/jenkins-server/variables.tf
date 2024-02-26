@@ -6,7 +6,6 @@
 variable "instance_type" {
   description = "Тип EC2 інстансу."
   type        = string
-  default     = "t3.small"
 }
 
 variable "environment" {

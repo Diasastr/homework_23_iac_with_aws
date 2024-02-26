@@ -4,14 +4,16 @@
   become: yes
   vars:
     jenkins_home: "/var/lib/jenkins"
-    jenkins_config_path: "/var/jenkins_home/casc_configs"
+    jenkins_config_path : "{{ jenkins_home }}/casc_configs"
+    initial_admin_password_file: "{{ jenkins_home }}/secrets/initialAdminPassword"
+    jenkins_cli_jar: "/var/cache/jenkins/war/WEB-INF/jenkins-cli.jar"
+    jenkins_url: "http://localhost:8080/"
     jenkins_plugins:
       - git
-      - pipeline
       - job-dsl
       - blueocean
       - configuration-as-code
-    terraform_version: "1.0.11"  # Specify the desired Terraform version
+    terraform_version: "1.7.4"
     terraform_install_path: "/usr/local/bin"
 
   tasks:
@@ -19,33 +21,113 @@
       apt:
         name: openjdk-11-jdk
         state: present
+        update_cache: yes
 
-    - name: Add Jenkins repository key
-      apt_key:
-        url: https://pkg.jenkins.io/debian/jenkins.io.key
+    - name: Install prerequisite packages
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg2
+          - software-properties-common
         state: present
+        update_cache: yes
+
+    - name: Add Jenkins GPG key
+      ansible.builtin.shell:
+        cmd: curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+        creates: /usr/share/keyrings/jenkins-keyring.asc
 
     - name: Add Jenkins repository
-      apt_repository:
-        repo: deb https://pkg.jenkins.io/debian-stable binary/
-        state: present
+      ansible.builtin.shell:
+        cmd: echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+        creates: /etc/apt/sources.list.d/jenkins.list
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
 
     - name: Install Jenkins
-      apt:
+      ansible.builtin.apt:
         name: jenkins
         state: present
         update_cache: yes
 
-    - name: Wait for Jenkins to start
-      wait_for:
-        path: "/var/run/jenkins/jenkins.pid"
+    - name: Ensure Jenkins service is started
+      ansible.builtin.systemd:
+        name: jenkins
+        state: started
+        enabled: yes
 
-    - name: Install Jenkins plugins
-      jenkins_plugin:
-        name: "{{ item }}"
-        jenkins_home: "{{ jenkins_home }}"
+    - name: Stop Jenkins service before making changes
+      ansible.builtin.systemd:
+        name: jenkins
+        state: stopped
+        enabled: yes
+
+    - name: Jenkins Skip startUp for MI
+      lineinfile:
+        dest: /usr/lib/systemd/system/jenkins.service
+        regexp: '^Environment="JAVA_OPTS=-Djava.awt.headless=true'
+        line: 'Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
+      register: result_skip_startup_wizard
+
+    - name: Reload systemd daemon
+      ansible.builtin.command:
+        cmd: systemctl daemon-reload
+      become: yes
+
+    - name: Start Jenkins service
+      ansible.builtin.systemd:
+        name: jenkins
+        state: started
+        enabled: yes
+
+    - name: Wait for Jenkins to be fully started
+      ansible.builtin.uri:
+        url: http://localhost:8080/login
+        method: GET
+        status_code: [ 200, 403 ]  # Jenkins might return 403 Forbidden if not logged in, which is still a sign of it running
+        timeout: 10
+      register: jenkins_response
+      until: jenkins_response.status == 200 or jenkins_response.status == 403
+      retries: 30
+      delay: 10
+
+    - name: Wait for Jenkins initial setup to complete
+      ansible.builtin.wait_for:
+        path: "{{ initial_admin_password_file }}"
+        state: present
+        timeout: 60
+
+    # From here, we need the initial admin password for Jenkins CLI operations
+    - name: Retrieve Jenkins initial admin password
+      ansible.builtin.slurp:
+        src: "{{ initial_admin_password_file }}"
+      register: initial_admin_password_result
+
+    - name: Set Jenkins initial admin password variable
+      set_fact:
+        initial_admin_password: "{{ initial_admin_password_result['content'] | b64decode }}"
+
+    - name: Download Jenkins CLI jar
+      get_url:
+        url: "http://localhost:8080/jnlpJars/jenkins-cli.jar"
+        dest: "/tmp/jenkins-cli.jar"
+        mode: '0755'
+      become: yes
+
+    # Example: Install a Jenkins plugin using the CLI and the initial admin password
+    - name: Install Jenkins plugins via CLI
+      command: >
+        java -jar /tmp/jenkins-cli.jar -s {{ jenkins_url }} -auth admin:{{ initial_admin_password }} install-plugin {{ item }} -deploy
       loop: "{{ jenkins_plugins }}"
-      notify: Restart Jenkins
+
+    - name: Restart Jenkins to load the new plugins
+      ansible.builtin.systemd:
+        name: jenkins
+        state: restarted
 
     - name: Ensure Jenkins Configuration as Code directory exists
       file:
@@ -56,7 +138,7 @@
 
     - name: Copy JCasC configuration to Jenkins server
       copy:
-        src: "./jenkins/jenkins-casc.yaml"
+        src: "../jenkins/jenkins-casc.yaml"
         dest: "{{ jenkins_config_path }}/jenkins-casc.yaml"
         owner: jenkins
         group: jenkins

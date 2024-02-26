@@ -28,12 +28,12 @@ resource "aws_instance" "jenkins_controller" {
   }
 
   provisioner "file" {
-    source      = "./ansible/install.sh"
+    source      = "../ansible/install.sh"
     destination = "/home/ubuntu/install.sh"
   }
 
   provisioner "file" {
-    source      = "./ansible/playbooks/setup-jenkins.yml"
+    source      = "../ansible/playbooks/setup-jenkins.yml"
     destination = "/home/ubuntu/setup-jenkins.yml"
   }
 
