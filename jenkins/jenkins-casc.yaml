@@ -1,16 +1,20 @@
 jenkins:
   systemMessage: "Jenkins configured automatically by JCasC"
 
-securityRealm:
-  local:
-    allowsSignup: false
-    users:
-      - id: "admin"
-        password: "adminPassword"
+  agentProtocols:
+    - "JNLP4-connect"
+    - "Ping"
 
-authorizationStrategy:
-  loggedInUsersCanDoAnything:
-    allowAnonymousRead: false
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "adminPassword"
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
 
 jobs:
   - script: >

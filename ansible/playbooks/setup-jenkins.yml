@@ -138,7 +138,7 @@
 
     - name: Copy JCasC configuration to Jenkins server
       copy:
-        src: "../jenkins/jenkins-casc.yaml"
+        src: "/home/ubuntu/jenkins-casc.yaml"
         dest: "{{ jenkins_config_path }}/jenkins-casc.yaml"
         owner: jenkins
         group: jenkins

@@ -1,38 +1,35 @@
 pipeline {
     agent any
 
-    environment {
-        // Define environment variables if needed
-    }
-
     stages {
         stage('Checkout Code') {
             steps {
+                // Checkout the repository containing Terraform files
                 checkout scm
             }
         }
-        stage('Initialize Terraform') {
+        stage('Terraform') {
             steps {
-                sh 'terraform init'
-            }
-        }
-        stage('Apply Terraform') {
-            steps {
-                sh 'terraform apply -auto-approve'
-            }
-        }
-    }
+                script {
+                    // Change directory to the Terraform deployment folder
+                    dir('jenkins/terraform-deployment') {
+                        // Initialize Terraform
+                        sh 'terraform init'
 
-    post {
-        success {
-            script {
-                // Trigger the next pipeline here
-                build job: 'ansible-configuration', wait: false
+                        // (Optional) Validate Terraform configuration
+                        sh 'terraform validate'
+
+                        // Apply Terraform changes
+                        sh 'terraform apply -auto-approve'
+
+                        // (Optional) Output Terraform execution plan
+                        sh 'terraform plan'
+
+                        // (Optional) Destroy Terraform resources
+                        // sh 'terraform destroy -auto-approve'
+                    }
+                }
             }
-        }
-        failure {
-            // Handle failure case
-            echo 'Terraform deployment failed.'
         }
     }
 }

@@ -33,6 +33,12 @@ resource "aws_instance" "jenkins_controller" {
   }
 
   provisioner "file" {
+    source      = "../jenkins/jenkins-casc.yaml"
+    destination = "/home/ubuntu/jenkins-casc.yaml"
+  }
+
+
+  provisioner "file" {
     source      = "../ansible/playbooks/setup-jenkins.yml"
     destination = "/home/ubuntu/setup-jenkins.yml"
   }
