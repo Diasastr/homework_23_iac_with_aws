@@ -27,6 +27,6 @@ variable "public_key_path" {
 
 data "aws_security_group" "jenkins" {
   tags = {
-    Name = "jenkins-server-sg"
+    Name = "$jenkins-server-sg"
   }
 }
