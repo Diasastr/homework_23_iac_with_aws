@@ -20,13 +20,13 @@ pipeline {
                         sh 'terraform validate'
 
                         // Apply Terraform changes
-                        sh 'terraform apply -auto-approve -lock=false'
+                        //sh 'terraform apply -auto-approve -lock=false'
 
                         // (Optional) Output Terraform execution plan
-                        sh 'terraform plan'
+                        //sh 'terraform plan'
 
                         // (Optional) Destroy Terraform resources
-                        // sh 'terraform destroy -auto-approve'
+                        sh 'terraform destroy -auto-approve -lock=false'
                     }
                 }
             }
