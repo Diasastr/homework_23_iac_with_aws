@@ -19,14 +19,21 @@ pipeline {
                         // (Optional) Validate Terraform configuration
                         sh 'terraform validate'
 
-                        // Apply Terraform changes
-                        //sh 'terraform apply -auto-approve -lock=false'
 
                         // (Optional) Output Terraform execution plan
-                        //sh 'terraform plan'
+                        sh 'terraform plan'
+
+                         // Apply Terraform changes
+                        sh 'terraform apply -auto-approve -lock=false'
+
+
+                        // Capture the output
+                        def appServerIp = sh(script: 'terraform output -raw app_server_public_ip', returnStdout: true).trim()
+                        // Set the IP as an environment variable or pass it to the next stage
+                        env.APP_SERVER_IP = appServerIp
 
                         // (Optional) Destroy Terraform resources
-                        sh 'terraform destroy -auto-approve -lock=false'
+                        //sh 'terraform destroy -auto-approve -lock=false'
                     }
                 }
             }

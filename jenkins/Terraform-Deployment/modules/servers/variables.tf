@@ -24,20 +24,20 @@ variable "app_server_security_group_id" {
   type        = string
 }
 
-data "aws_ami" "latest_amazon_linux" {
+data "aws_ami" "ubuntu" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-ebs"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
 
   filter {
-    name   = "architecture"
-    values = ["x86_64"]
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 
-  owners = ["amazon"] # Amazon Linux 2 AMI owner
+  owners = ["099720109477"] # Canonical
 }
 
 variable "key_name" {

@@ -1,0 +1,15 @@
+pipeline {
+    agent any
+    stages {
+        stage('Install Docker and Nginx') {
+            steps {
+                script {
+                    // Running Ansible playbook from Jenkins server to remote server
+                    sh """
+                    ansible-playbook -i  ${env.APP_SERVER_IP}, setup-server.yml -u ubuntu --private-key /var/lib/jenkins/deployer-key-jenkins.pem
+                    """
+                }
+            }
+        }
+    }
+}

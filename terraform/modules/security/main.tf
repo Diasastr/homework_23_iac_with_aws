@@ -62,7 +62,7 @@ resource "aws_security_group" "jenkins_sg" {
   }
 
   tags = {
-    Name        = "$jenkins-server-sg"
+    Name        = "jenkins-server-sg"
     Environment = var.environment
     Role        = "jenkins"
   }

@@ -71,14 +71,19 @@ resource "aws_security_group" "app_server_sg" {
 
 /*==== Пара Ключів для Розгортання ======*/
 // Пара ключів для операцій розгортання, що дозволяє безпечний доступ SSH.
-resource "tls_private_key" "private_key" {
+resource "tls_private_key" "example" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
 resource "aws_key_pair" "deployer" {
   key_name   = "deployer-key-jenkins"
-  public_key = tls_private_key.private_key.public_key_openssh
+  public_key = tls_private_key.example.public_key_openssh
+}
+
+resource "local_file" "private_key" {
+  content  = tls_private_key.example.private_key_pem
+  filename = "/var/lib/jenkins/deployer-key-jenkins.pem"
 }
 
 

@@ -1,0 +1,21 @@
+pipeline {
+    agent any
+    stages {
+        stage('Configure App Server') {
+            steps {
+                script {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/deployer-key-jenkins.pem ubuntu@${APP_SERVER_IP} << EOF
+sudo apt update && sleep 5
+sudo apt install -y software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install -y ansible
+echo 'Ansible installed'
+EOF
+                    """
+                }
+            }
+        }
+    }
+}
+

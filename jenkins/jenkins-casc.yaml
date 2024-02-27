@@ -22,16 +22,25 @@ jobs:
         branchSources {
           git {
             id = 'terraform-deployment'
-            remote = 'https://github.com/Diasastr/homework_23_iac_with_aws/blob/68f2f4588b0abb43ae697836d149e4a04c655b69/jenkins/Terraform-Deployment'
+            remote = 'https://github.com/Diasastr/homework_23_iac_with_aws'
+            traits {
+              // Use specific Jenkinsfile path
+              jenkinsFileFolder('jenkins/Terraform-Deployment')
+            }
           }
         }
       }
+
   - script: >
       multibranchPipelineJob('Ansible-Configuration') {
         branchSources {
           git {
             id = 'terraform-deployment'
-            remote = 'https://github.com/Diasastr/homework_23_iac_with_aws/blob/52ba0b3bac7e0591813e017851012a004bff5f01/jenkins/Ansible-Configuration'
+            remote = 'https://github.com/Diasastr/homework_23_iac_with_aws'
+            traits {
+            // Use specific Jenkinsfile path
+            jenkinsFileFolder('jenkins/Ansible-Configuration')
+            }
           }
         }
       }
@@ -40,7 +49,11 @@ jobs:
         branchSources {
           git {
             id = 'terraform-deployment'
-            remote = 'https://github.com/Diasastr/homework_23_iac_with_aws/blob/52ba0b3bac7e0591813e017851012a004bff5f01/jenkins/Application-Deployment'
+            remote = 'https://github.com/Diasastr/homework_23_iac_with_aws'
+            traits {
+            // Use specific Jenkinsfile path
+            jenkinsFileFolder('jenkins/Application-Deployment')
+            }
           }
         }
       }
